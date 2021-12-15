@@ -7,6 +7,8 @@ Uses unsupervised machine learning to make movie recommendations for a given inp
 The best way to try out the project currently is to download the project file and run the Jupyter Notebook "movie_recommender.ipynb".
 This can be done via Google Collab or locally using an IDE with support for Jupyter notebooks.
 
+If you want to run the project locally, I have provided a "requirements.txt" containing the packages used in the project.
+
 Another option is to run the "movie_recommender.py" script. This will require you to modify the array of titles in the script to change 
 the input for the algorithm.
 
