@@ -35,7 +35,8 @@ np.random.seed(1)
 # import nltk
 # nltk.download('stopwords')
 
-movies = pd.read_csv("/content/gdrive/My Drive/movies_pop_updated.csv")
+# movies = pd.read_csv("/content/gdrive/My Drive/movies_pop_updated.csv")
+movies = pd.read_csv("cleaned_movies.csv")
 
 movies.head()
 
