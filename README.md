@@ -16,7 +16,7 @@ is the final report that was submitted explaining the project. However, I person
 will continue to in this repository. The initial commit was approximately the state of the project as discussed in the report.
 
 ### Contributors
-- Tyler Limbach (myself) - Wrote a large section of the code and notebook, namely most of the recommendation algorithm. Independently continuing development after the project report.
+- Tyler Limbach (myself) - Wrote a large section of the code and notebook, namely most of the recommendation algorithm. Wrote part of the report. Independently continuing development after the project report.
 - Sarang Gawane - The other contributer to the code and notebook. Found and cleaned the dataset used in our original iteration, and implemented
 the initial part of the algorithm.
 - Mirac Kara - Wrote part of the report and contributed to design discussion.
