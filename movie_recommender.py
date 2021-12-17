@@ -34,19 +34,39 @@ np.random.seed(1)
 movies_df = pd.read_csv("cleaned_movies.csv")
 movies_df.head()
 
+
 def combined_features(row):
-    return row['director'] + " " + ''.join(row['cast'].split(',')[:4]) + " " + row['title']
+    """ Combine the features director, first 4 cast, and title from one row into a string.
+
+  :param row: A row of a DataFrame
+  :return: A string of the combined features.
+  """
+    cast4 = row['cast'].split(', ')[:4]
+    cast4 = ' '.join([''.join(x.split()) for x in cast4])
+
+    director = row['director'].replace(' ', '')
+
+    return ' '.join([director, cast4, row['title']])
+
 
 def add_columns(movies):
-  movies['index'] = range(len(movies))
-  movies = movies.reset_index()
+    """ Add columns we will use for calculations to the DataFrame
 
-  movie_features = ["director", "cast", "title"]
+  - A column
 
-  for feature in movie_features:
-      movies[feature] = movies[feature].fillna('')
+  :param movies:
+  :return:
+  """
+    movies['index'] = range(len(movies))
+    movies = movies.reset_index()
 
-  movies_df["combined_features"] = movies_df.apply(combined_features, axis =1)
+    movie_features = ["director", "cast", "title"]
+
+    for feature in movie_features:
+        movies[feature] = movies[feature].fillna('')
+
+    movies_df["combined_features"] = movies_df.apply(combined_features, axis=1)
+
 
 add_columns(movies_df)
 movies_df.head()
@@ -59,36 +79,41 @@ score could be. It was removed after deciding to add more weighted similarity ma
 fact that genre alone should be weighed very heavily.
 """
 
+
 def base_scores(movies):
-  movie_cv = CountVectorizer(stop_words='english')
-  count_matrix = movie_cv.fit_transform(movies["combined_features"])
-  # print("Count Matrix:", CC_count_matrix.toarray())
-  cosine_sim = cosine_similarity(count_matrix)
-  # print(cosine_sim)
-  return cosine_sim
+    movie_cv = CountVectorizer(stop_words='english')
+    count_matrix = movie_cv.fit_transform(movies["combined_features"])
+    # print("Count Matrix:", CC_count_matrix.toarray())
+    cosine_sim = cosine_similarity(count_matrix)
+    # print(cosine_sim)
+    return cosine_sim
+
 
 base_sims = base_scores(movies_df)
 
 plt.imshow(base_sims, cmap='hot', interpolation='nearest')
 plt.show()
 
+
 def fetch_title(movies, title):
-  """ Fetch a movie index using the title
+    """ Fetch a movie index using the title
 
   :param movies: DataFrame of movies & info
   :param title: Title of a movie
   :return: The index of the first movie matching the title
   """
-  return movies[movies.title == title]["index"].values[0]
+    return movies[movies.title == title]["index"].values[0]
+
 
 def fetch_index(movies, index):
-  """ Fetch a movie title using the index
+    """ Fetch a movie title using the index
 
   :param movies: DataFrame of movies & info
   :param index: Index of a movie/row in the DataFrame
   :return: The title of the movie at the given index
   """
-  return movies[movies.index == index]["title"].values[0]
+    return movies[movies.index == index]["title"].values[0]
+
 
 """# Compute Matrices for Genre, Description, and Year Similarity
 - Genre Score Calculation (Similarity matrix based on genres)
@@ -102,42 +127,46 @@ def fetch_index(movies, index):
 Combine weighted matrices and vectors to get a final similarity matrix
 """
 
+
 def genre_scores(movies):
-  """ Compute a similarity matrix for movies by genre
+    """ Compute a similarity matrix for movies by genre
 
   :param movies: DataFrame of movies & info
   :return: A similarity matrix
   """
-  vectorizer = CountVectorizer()
-  count_matrix = vectorizer.fit_transform(movies['genres'])
-  genre_sims = cosine_similarity(count_matrix)
-  return genre_sims
+    vectorizer = CountVectorizer()
+    count_matrix = vectorizer.fit_transform(movies['genres'])
+    genre_sims = cosine_similarity(count_matrix)
+    return genre_sims
+
 
 def description_scores(movies):
-  """ Compute a similarity matrix for movies by description
+    """ Compute a similarity matrix for movies by description
 
   :param movies: DataFrame of movies & info
   :return: A similarity matrix
   """
-  vectorizer = TfidfVectorizer(stop_words='english')
-  tfidf_matrix = vectorizer.fit_transform(movies["description"])
-  description_sims = cosine_similarity(tfidf_matrix)
-  return description_sims
+    vectorizer = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = vectorizer.fit_transform(movies["description"])
+    description_sims = cosine_similarity(tfidf_matrix)
+    return description_sims
+
 
 def year_scores(movies):
-  """ Compute a difference matrix for movies by year
+    """ Compute a difference matrix for movies by year
   Note: Unlike the other similarity matrices, 0 is most similar
 
   :param movies: DataFrame of movies & info
   :return: A difference matrix
   """
-  y1 = movies['year'].values
-  y2 = movies['year'].values
-  year_diffs = np.abs((y1[None, :] - y2[:, None]) / 100)
-  return year_diffs
+    y1 = movies['year'].values
+    y2 = movies['year'].values
+    year_diffs = np.abs((y1[None, :] - y2[:, None]) / 100)
+    return year_diffs
+
 
 def norm(data, ceiling=float('inf'), floor=float('-inf')):
-  """ Normalize an array of data with the provided ceiling a floor.
+    """ Normalize an array of data with the provided ceiling a floor.
 
   :param data: An array of data
   :param ceiling: Any value >= ceiling becomes 1
@@ -145,20 +174,21 @@ def norm(data, ceiling=float('inf'), floor=float('-inf')):
   :return:
   """
 
-  if ceiling < float('inf'):
-    ceiling = max(data)
+    if ceiling < float('inf'):
+        ceiling = max(data)
 
-  if floor > float('-inf'):
-    floor = min(data)
+    if floor > float('-inf'):
+        floor = min(data)
 
-  result = ((data - floor) / (ceiling - floor))
-  for x in range(len(result)):
-    if result[x] > 1:
-      result[x] = 1
-    if result[x] < 0:
-      result[x] = 0
+    result = ((data - floor) / (ceiling - floor))
+    for x in range(len(result)):
+        if result[x] > 1:
+            result[x] = 1
+        if result[x] < 0:
+            result[x] = 0
 
-  return result
+    return result
+
 
 year_m = year_scores(movies_df)
 base_m = base_scores(movies_df)
@@ -174,8 +204,9 @@ print(description_m)
 print(pop_v)
 print(rating_v)
 
+
 def combine(base_scores, genre_scores, description_scores, year_scores, popularity_vector, rating_vector):
-  """ Combines similarity matrices and vectors using addition and weights
+    """ Combines similarity matrices and vectors using addition and weights
 
   :param base_scores: Base similarity matrix
   :param genre_scores: Genre similarity matrix
@@ -185,18 +216,19 @@ def combine(base_scores, genre_scores, description_scores, year_scores, populari
   :param rating_vector: Rating vector
   :return: Resulting similarity matrix from the weighted computation
   """
-  weighted_base = np.multiply(base_scores, 2)
-  weighted_genres = np.multiply(genre_scores, 2.1)
-  weighted_descriptions = np.multiply(description_scores, 1.2)
-  weighted_years = np.multiply(year_scores, -5)
+    weighted_base = np.multiply(base_scores, 2)
+    weighted_genres = np.multiply(genre_scores, 2.1)
+    weighted_descriptions = np.multiply(description_scores, 1.2)
+    weighted_years = np.multiply(year_scores, -5)
 
-  weighted_pop = np.multiply(popularity_vector, 1)
-  weighted_ratings = np.multiply(rating_vector, 2)
+    weighted_pop = np.multiply(popularity_vector, 1)
+    weighted_ratings = np.multiply(rating_vector, 2)
 
-  combined_matrix = weighted_base + weighted_genres + weighted_descriptions + weighted_years
-  combined_matrix = combined_matrix + (weighted_pop + weighted_ratings)[:, np.newaxis]
+    combined_matrix = weighted_base + weighted_genres + weighted_descriptions + weighted_years
+    combined_matrix = combined_matrix + (weighted_pop + weighted_ratings)[:, np.newaxis]
 
-  return combined_matrix
+    return combined_matrix
+
 
 scores = combine(base_m, genre_m, description_m, year_m, pop_v, rating_v)
 
@@ -204,8 +236,9 @@ scores = combine(base_m, genre_m, description_m, year_m, pop_v, rating_v)
 Provide a ranked list of the 'most similar' movies to the input movies provided.
 """
 
+
 def recommend(movies, scores, titles, count):
-  """ Make a recommendation list based on a list of titles
+    """ Make a recommendation list based on a list of titles
 
   :param movies: DataFrame of movies & info
   :param scores: Similarity matrix for the movies
@@ -213,28 +246,28 @@ def recommend(movies, scores, titles, count):
   :param count: Number of recommendations to output
   :return:
   """
-  proximity_arr = np.zeros([len(movies), 2])
-  proximity_arr[:,0] = np.array(movies["index"], dtype=int)
-  for title in titles:
-    movie_index = fetch_title(movies, title)
-    proximity_row = np.array(scores[movie_index])
-    proximity_arr[:,1] = proximity_arr[:,1] + proximity_row
+    proximity_arr = np.zeros([len(movies), 2])
+    proximity_arr[:, 0] = np.array(movies["index"], dtype=int)
+    for title in titles:
+        movie_index = fetch_title(movies, title)
+        proximity_row = np.array(scores[movie_index])
+        proximity_arr[:, 1] = proximity_arr[:, 1] + proximity_row
 
-  movie_proximity_sorted = proximity_arr[proximity_arr[:, 1].argsort()][::-1]
+    movie_proximity_sorted = proximity_arr[proximity_arr[:, 1].argsort()][::-1]
 
-  i = 0
-  n = 1
-  print("Recommendations:")
-  while n <= count:
-    title = fetch_index(movies, int(movie_proximity_sorted[i, 0]))
-    if title not in titles:
-      print(f"{n}. {title}")
-      n+=1
-    i+=1
+    i = 0
+    n = 1
+    print("Recommendations:")
+    while n <= count:
+        title = fetch_index(movies, int(movie_proximity_sorted[i, 0]))
+        if title not in titles:
+            print(f"{n}. {title}")
+            n += 1
+        i += 1
 
 
 num_recommendations = 10
-titles = ["Paul Blart: Mall Cop", "Step Brothers"]
+titles = ["Harry Potter and the Goblet of Fire"]
 recommend(movies_df, scores, titles, num_recommendations)
 
 """# Preliminary Exploratory Data Analysis
@@ -243,9 +276,9 @@ was removed from this notebook.
 """
 
 all_genres = [s.split(", ") for s in movies_df[movies_df.genres.notnull()].genres]
-genres = [item for l in all_genres for item in l ]
+genres = [item for l in all_genres for item in l]
 unique_genres = set(genres)
-print (f"total of {len(unique_genres)} unique genres from {len(genres)} occurances.")
+print(f"total of {len(unique_genres)} unique genres from {len(genres)} occurances.")
 pd.Series(genres).value_counts().plot(kind='bar', figsize=(15, 4))
 plt.title("# of movies per genre")
 plt.ylabel("# of movies")
@@ -253,8 +286,8 @@ plt.xlabel("genre")
 plt.show()
 
 movies_df['year'] = movies_df['year'].replace(0, np.NaN)
-years = movies_df[movies_df.year.notnull()].year # get rows where year is not None
-print (f"Total of {len(set(years))} uinque years from {min(years)} to {max(years)}")
+years = movies_df[movies_df.year.notnull()].year  # get rows where year is not None
+print(f"Total of {len(set(years))} uinque years from {min(years)} to {max(years)}")
 pd.Series(years).value_counts().sort_index().plot(kind='bar', figsize=(30, 15))
 plt.title("# of movies over time")
 plt.ylabel("# of movies")
@@ -262,7 +295,7 @@ plt.xlabel("year")
 plt.show()
 
 movies_df['average_vote'] = movies_df['average_vote'].replace(0, np.NaN)
-print (movies_df['average_vote'].describe())
+print(movies_df['average_vote'].describe())
 pd.Series(movies_df['average_vote']).value_counts().sort_index().plot(kind='bar', figsize=(15, 10))
 plt.title("Distribution of votes")
 plt.ylabel("# of movies")
