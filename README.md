@@ -2,15 +2,18 @@
 Uses unsupervised machine learning to make movie recommendations for a given input of movie(s).
 
 # Instructions
-> A "main.py" will be added to make the application more useable without a Jupyter Notebook and without modifying any code.
-> 
-The best way to try out the project currently is to download the project file and run the Jupyter Notebook "movie_recommender.ipynb".
-This can be done via Google Collab or locally using an IDE with support for Jupyter notebooks.
+> Note: Error handling and input validation has not been implemented yet, so please use exact titles found on iMDB.
 
-If you want to run the project locally, I have provided a "requirements.txt" containing the packages used in the project.
+(Optional) Activate a virtualenv in your terminal.
+1. Install the required packages listed in requirements.txt to your virtual env or base python installation. This can be done with pip in your terminal: ```pip install -r requirements.txt```
+2. Run the main.py script in the project directory to test the program. 
 
-Another option is to run the "movie_recommender.py" script. This will require you to modify the array of titles in the script to change 
-the input for the algorithm.
+You can also try out the project using a Jupyter Notebook with the file "movie_recommender.ipynb". 
+This can be done via Google Collab or locally using an IDE with support for Jupyter notebooks. However, this option may require you to modify some of the code to find the csv location correctly, and is not recommended to most users.
+
+# Roadmap
+- [ ] Add input validation & error/exception handling
+- [ ] Implement a form of autocomplete or title matching for input (e.g. "Did you mean one of these movies? _lists title choices_")
 
 # Report
 The original iteration of this project was done as a final project for the Machine Learning Course CS412 at UIC. The "report.pdf" file 
