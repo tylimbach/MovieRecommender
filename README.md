@@ -2,7 +2,7 @@
 Uses unsupervised machine learning to make movie recommendations for a given input of movie(s).
 
 # Instructions
-> Note: Error handling and input validation has not been implemented yet, so please use exact titles found on iMDB.
+> Note: Error handling and input validation has not been implemented yet, so please use exact titles found on iMDB when entering movies to avoid crashes.
 
 (Optional) Activate a virtualenv in your terminal.
 1. Install the required packages listed in requirements.txt to your virtual env or base python installation. This can be done with pip in your terminal: ```pip install -r requirements.txt```
