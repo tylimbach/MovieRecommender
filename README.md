@@ -8,8 +8,7 @@ Uses unsupervised machine learning to make movie recommendations for a given inp
 1. Install the required packages listed in requirements.txt to your virtual env or base python installation. This can be done with pip in your terminal: ```pip install -r requirements.txt```
 2. Run the main.py script in the project directory to test the program. 
 
-You can also try out the project using a Jupyter Notebook with the file "movie_recommender.ipynb". 
-This can be done via Google Collab or locally using an IDE with support for Jupyter notebooks. However, this option may require you to modify some of the code to find the csv location correctly, and is not recommended to most users.
+You can also check out the Jupyter notebook .ipynb file, but this file is not being updated further and is not recommended for most users.
 
 # Roadmap
 - [ ] Add input validation & error/exception handling
